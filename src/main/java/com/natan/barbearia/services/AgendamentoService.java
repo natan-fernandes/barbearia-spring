@@ -2,6 +2,8 @@ package com.natan.barbearia.services;
 
 import com.natan.barbearia.dtos.CadastroAgendamentoDto;
 import com.natan.barbearia.enums.TiposServico;
+import com.natan.barbearia.exceptions.EquipeNotFoundException;
+import com.natan.barbearia.exceptions.TipoServicoNotFound;
 import com.natan.barbearia.models.Agendamento;
 import com.natan.barbearia.models.Equipe;
 import com.natan.barbearia.models.TipoServico;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -21,17 +24,22 @@ public record AgendamentoService(AgendamentoRepository agendamentoRepository,
                                  TipoServicoRepository tipoServicoRepository,
                                  ModelMapper mapper) {
 
-    public Agendamento cadastrar(CadastroAgendamentoDto dto) {
+    public Agendamento cadastrar(CadastroAgendamentoDto dto)
+            throws EquipeNotFoundException, TipoServicoNotFound {
         Agendamento agendamento = mapper.map(dto, Agendamento.class);
 
         Optional<Equipe> equipe = equipeRepository.findById(dto.getEquipeId());
         if (equipe.isEmpty())
-            return null; //TODO: voltar exception
+            throw new EquipeNotFoundException(String.format("Nenhuma equipe com id '%s' foi encontrada.", dto.getEquipeId()));
         agendamento.setEquipe(equipe.get());
 
         List<TipoServico> tiposServico = tipoServicoRepository.findAllById(dto.getServicosIds());
-        if (tiposServico.isEmpty())
-            return null; //TODO: voltar exception
+        if (tiposServico.isEmpty()) {
+            String idsServico = dto.getServicosIds().stream().map(String::valueOf)
+                    .collect(Collectors.joining(", ", "[", "]"));
+            throw new TipoServicoNotFound(String.format("Nenhum tipo de serviço com ids %s foram encontrados", idsServico));
+        }
+
         tiposServico = getTiposServicoFiltrados(tiposServico);
         agendamento.setTiposServico(tiposServico);
 
@@ -47,6 +55,7 @@ public record AgendamentoService(AgendamentoRepository agendamentoRepository,
             tiposServico = tiposServico.stream().filter(x -> x.getId() != TiposServico.Barba.getValue()
                                                             && x.getId() != TiposServico.Corte.getValue()).toList();
         }
+
         return tiposServico;
     }
 }

@@ -1,5 +1,7 @@
 package com.natan.barbearia.configs;
 
+import com.fasterxml.classmate.TypeResolver;
+import com.natan.barbearia.dtos.CadastroAgendamentoDto;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -13,6 +15,7 @@ public class SwaggerConfig {
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
+                .useDefaultResponseMessages(false)
                 .apiInfo(new ApiInfoBuilder()
                         .description("API de serviços da barbearia")
                         .title("Barbearia BO")
@@ -21,6 +24,7 @@ public class SwaggerConfig {
                 .enable(true)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.natan.barbearia"))
+
                 .paths(PathSelectors.any())
                 .build();
     }
