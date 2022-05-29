@@ -14,11 +14,13 @@ public class TipoServico extends BaseEntity {
     public TipoServico() {
     }
 
-    public TipoServico(String descricao, int preco) {
+    public TipoServico(String descricao, int preco, String iconeUrl) {
         this.descricao = descricao;
         this.preco = preco;
+        this.iconeUrl = iconeUrl;
     }
 
     private String descricao;
     private int preco;
+    private String iconeUrl;
 }

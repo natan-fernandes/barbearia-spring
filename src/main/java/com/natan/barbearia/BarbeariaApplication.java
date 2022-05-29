@@ -40,7 +40,7 @@ public class BarbeariaApplication implements CommandLineRunner {
 		if (tipoServicoRepository.count() == 0) {
 			List<TipoServico> tiposServico = new ArrayList<>();
 			Arrays.stream(TiposServico.values()).forEach(x ->
-					tiposServico.add(new TipoServico(x.getNome(), x.getPreco())));
+					tiposServico.add(new TipoServico(x.getNome(), x.getPreco(), x.getIconeUrl())));
 			tipoServicoRepository.saveAll(tiposServico);
 		}
 		if (equipeRepository.count() == 0)
