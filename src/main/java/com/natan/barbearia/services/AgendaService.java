@@ -3,12 +3,15 @@ package com.natan.barbearia.services;
 import com.natan.barbearia.dtos.CadastroAgendamentoDto;
 import com.natan.barbearia.enums.FiltrosAgenda;
 import com.natan.barbearia.enums.TiposServico;
+import com.natan.barbearia.exceptions.ClienteNotFoundException;
 import com.natan.barbearia.exceptions.EquipeNotFoundException;
-import com.natan.barbearia.exceptions.TipoServicoNotFound;
+import com.natan.barbearia.exceptions.TipoServicoNotFoundException;
 import com.natan.barbearia.models.Agendamento;
+import com.natan.barbearia.models.Cliente;
 import com.natan.barbearia.models.Equipe;
 import com.natan.barbearia.models.TipoServico;
 import com.natan.barbearia.repositories.AgendamentoRepository;
+import com.natan.barbearia.repositories.ClienteRepository;
 import com.natan.barbearia.repositories.EquipeRepository;
 import com.natan.barbearia.repositories.TipoServicoRepository;
 import org.modelmapper.ModelMapper;
@@ -17,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,21 +29,27 @@ import java.util.stream.Stream;
 public record AgendaService(AgendamentoRepository agendamentoRepository,
                             EquipeRepository equipeRepository,
                             TipoServicoRepository tipoServicoRepository,
+                            ClienteRepository clienteRepository,
                             ModelMapper mapper) {
 
     public Agendamento cadastrar(CadastroAgendamentoDto dto)
-            throws EquipeNotFoundException, TipoServicoNotFound {
+            throws EquipeNotFoundException, TipoServicoNotFoundException {
         Agendamento agendamento = mapper.map(dto, Agendamento.class);
         Optional<Equipe> equipe = equipeRepository.findById(dto.getEquipeId());
         if (equipe.isEmpty())
             throw new EquipeNotFoundException(String.format("Nenhuma equipe com id '%s' foi encontrada.", dto.getEquipeId()));
         agendamento.setEquipe(equipe.get());
 
+        Optional<Cliente> cliente = clienteRepository.findById(dto.getClienteId());
+        if (cliente.isEmpty())
+            throw new ClienteNotFoundException(String.format("Nenhum cliente com id '%s' foi encontrado.", dto.getClienteId()));
+        agendamento.setCliente(cliente.get());
+
         List<TipoServico> tiposServico = tipoServicoRepository.findAllById(dto.getServicosIds());
         if (tiposServico.isEmpty()) {
             String idsServico = dto.getServicosIds().stream().map(String::valueOf)
                     .collect(Collectors.joining(", ", "[", "]"));
-            throw new TipoServicoNotFound(String.format("Nenhum tipo de serviço com ids %s foram encontrados", idsServico));
+            throw new TipoServicoNotFoundException(String.format("Nenhum tipo de serviço com ids %s foram encontrados", idsServico));
         }
 
         tiposServico = getTiposServicoFiltrados(tiposServico);
@@ -117,5 +125,13 @@ public record AgendaService(AgendamentoRepository agendamentoRepository,
         Instant instantFinal = LocalDateTime.of(ultimoDiaAno, LocalTime.MAX).toInstant(ZoneOffset.UTC);
 
         return agendamentoRepository.obterPorDataCadastro(instantInicial, instantFinal);
+    }
+
+    public List<Agendamento> obterPorClienteId(long id) {
+        Optional<Cliente> cliente = clienteRepository.findById(id);
+        if (cliente.isEmpty())
+            throw new ClienteNotFoundException(String.format("Nenhum cliente com id '%s' foi encontrado.", id));
+
+        return agendamentoRepository.obterPorClienteId(id);
     }
 }

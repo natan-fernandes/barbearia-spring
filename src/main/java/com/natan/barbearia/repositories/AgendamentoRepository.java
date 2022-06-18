@@ -12,4 +12,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
     @Query(value = "select a from Agendamento  a where a.dataCadastro >= :dataInicial and a.dataCadastro <= :dataFinal")
     List<Agendamento> obterPorDataCadastro(@Param("dataInicial") Instant dataInicial,
                                            @Param("dataFinal") Instant dataFinal);
+
+    @Query(value = "select a from Agendamento a where a.cliente.id = :clienteId")
+    List<Agendamento> obterPorClienteId(@Param("clienteId") Long clienteId);
 }

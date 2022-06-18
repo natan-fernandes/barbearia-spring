@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 public class CadastroAgendamentoDto {
-    private String cliente;
+    private long clienteId;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dataAgendamento;

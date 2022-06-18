@@ -16,7 +16,8 @@ public class Agendamento extends BaseEntity {
     @ManyToOne()
     private Equipe equipe;
 
-    private String cliente;
+    @ManyToOne()
+    private Cliente cliente;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dataAgendamento;

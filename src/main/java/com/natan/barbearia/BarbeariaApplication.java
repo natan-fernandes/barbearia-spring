@@ -6,6 +6,7 @@ import com.natan.barbearia.models.TipoServico;
 import com.natan.barbearia.repositories.EquipeRepository;
 import com.natan.barbearia.repositories.TipoServicoRepository;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -32,7 +33,9 @@ public class BarbeariaApplication implements CommandLineRunner {
 
 	@Bean
 	public ModelMapper modelMapper() {
-		return new ModelMapper();
+		ModelMapper mapper = new ModelMapper();
+		mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		return mapper;
 	}
 
 	@Override
