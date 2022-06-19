@@ -8,7 +8,7 @@ import javax.persistence.Table;
 
 @Data
 @Entity
-@Table(name = "TiposServico")
+@Table(name = "DefTipoServico")
 @EqualsAndHashCode(callSuper = true)
 public class TipoServico extends BaseEntity {
     public TipoServico() {
