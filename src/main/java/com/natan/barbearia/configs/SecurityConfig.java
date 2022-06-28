@@ -56,7 +56,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         String[] urlsLiberadas = {
             "/api/auth/login",
-            "/swagger-ui/**"
+            "/swagger-resources/**",
+            "/swagger-ui.html",
+            "/v2/api-docs",
+            "/webjars/**"
         };
         http.authorizeRequests()
                 .antMatchers(urlsLiberadas).permitAll()
